@@ -1,0 +1,86 @@
+###############################################################################
+# Define Device, Package And Speed Grade
+###############################################################################
+CONFIG PART = XC6VLX240T-FF1156-1;
+
+NET "i_sclk_p" TNM_NET = TNM_SysClk;
+TIMESPEC "TS_SysClk" = PERIOD "TNM_SysClk" 5 ns ;
+NET  "i_sclk_p"   LOC = "J9";
+NET  "i_sclk_p"   IOSTANDARD = LVDS_25;
+NET  "i_sclk_n"   LOC = "H9";
+NET  "i_sclk_n"   IOSTANDARD = LVDS_25;
+
+# button "Center"
+NET "i_rst" LOC = G26;
+NET "i_rst" CLOCK_DEDICATED_ROUTE = "FALSE";
+# button "Left"
+NET "i_rst_ts" LOC = G17;
+NET "i_rst_ts" CLOCK_DEDICATED_ROUTE = "FALSE";
+# jumpers
+
+
+# UART1 interface
+#NET "i_uart1_ctsn" LOC = T23 | PULLDOWN;
+NET "i_uart1_rd"   LOC = J24;
+#NET "o_uart1_rtsn" LOC = T24;
+NET "o_uart1_td"   LOC = J25;
+
+# UART2 interface (debug port).
+# Assign to HPC:
+#NET "i_uart2_ctsn" LOC = AL23 | PULLDOWN; # HPC H20
+#NET "i_uart2_rd"   LOC = AM23; # HPC H19
+#NET "o_uart2_rtsn" LOC = AN23; # HPC G19
+#NET "o_uart2_td"   LOC = AP22; # HPC G18
+# Assign to LPC:
+#NET "i_uart2_ctsn" LOC = C33 | PULLDOWN; # LPC C18
+NET "i_uart2_rd"   LOC = B34; # LPC C19
+#NET "o_uart2_rtsn" LOC = F30; # LPC C14
+NET "o_uart2_td"   LOC = G30; # LPC C15
+
+#JTAG
+NET "i_jtag_tck" CLOCK_DEDICATED_ROUTE = "FALSE";
+
+NET "o_jtag_vref" LOC = C34;  # LPC D18
+NET "i_jtag_ntrst" LOC = D34; # LPC D17
+NET "i_jtag_tdi" LOC = L26;   # LPC D15
+NET "i_jtag_tms" LOC = L25;   # LPC D14
+NET "i_jtag_tck" LOC = H34;   # LPC D11
+NET "o_jtag_tdo" LOC = K33;   # LPC C10
+
+# GPIO
+NET "io_gpio[0]"  LOC = D22;   # DIP-0.
+NET "io_gpio[1]"  LOC = C22;   # DIP-1
+NET "io_gpio[2]"  LOC = L21;   # DIP-2
+NET "io_gpio[3]"  LOC = L20;   # DIP-3
+NET "io_gpio[4]"  LOC = AC22;   # LED-0
+NET "io_gpio[5]"  LOC = AC24;   # LED-1
+NET "io_gpio[6]"  LOC = AE22;   # LED-2
+NET "io_gpio[7]"  LOC = AE23;   # LED-3
+#NET "i_dip[0]"  LOC = D22 | IOSTANDARD=LVCMOS18 | PULLDOWN | SLEW=SLOW | DRIVE=2;   # DIP-0.
+#NET "i_dip[1]"  LOC = C22 | IOSTANDARD=LVCMOS18 | PULLDOWN | SLEW=SLOW | DRIVE=2;   # DIP-1
+#NET "i_dip[2]"  LOC = L21 | IOSTANDARD=LVCMOS18 | PULLDOWN | SLEW=SLOW | DRIVE=2;   # DIP-2
+#NET "i_dip[3]"  LOC = L20 | IOSTANDARD=LVCMOS18 | PULLDOWN | SLEW=SLOW | DRIVE=2;   # DIP-3
+#NET "i_dip[4]"  LOC = C18;   # DIP-4
+#NET "i_dip[5]"  LOC = B18;   # DIP-5
+#NET "i_dip[6]"  LOC = K22;   # DIP-6
+#NET "i_dip[7]"  LOC = K21;   # DIP-7
+
+
+# User's LEDs:
+#NET "o_led[0]" LOC = AC22;
+#NET "o_led[1]" LOC = AC24;
+#NET "o_led[2]" LOC = AE22;
+#NET "o_led[3]" LOC = AE23;
+#NET "o_led[4]" LOC = AB23;
+#NET "o_led[5]" LOC = AG23;
+#NET "o_led[6]" LOC = AE24;
+#NET "o_led[7]" LOC = AD24;
+
+# Flash SPI
+NET "o_flash_sck" LOC = AP29;   # HPC H26
+NET "o_flash_so" LOC = AN30;    # HPC H28
+NET "i_flash_si" LOC = AN24;    # HPC H23
+#NET "o_flash_holdn" LOC = AL23; # HPC H20
+#NET "o_flash_wpn" LOC = AN25;   # HPC H22
+#NET "o_flash_csn" LOC = AN29;   # HPC H25
+#NET "o_flash_reset" LOC = AM30; # HPC H29
