@@ -22,11 +22,9 @@ library ambalib;
 use ambalib.types_amba.all;
 library techmap;
 
-library armlib;
-use armlib.types_armm3.all;
-
 entity hrom is generic (
-    aw : integer := 16
+    aw : integer := 16;
+    init_file : string := ""
 );
 port (
     i_rstn    : in std_logic;
@@ -123,7 +121,7 @@ begin
 		
   mem0 : sram32_inferred_init generic map (
     abits => aw-2,
-    init_file => "../../fw_images/bootimage.bin"
+    init_file => init_file
   ) port map (
     clk => i_clk,
     address => wb_addr,

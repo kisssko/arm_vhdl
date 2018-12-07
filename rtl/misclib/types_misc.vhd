@@ -21,23 +21,42 @@ use commonlib.types_common.all;
 library ambalib;
 use ambalib.types_amba.all;
 
-package types_mem is
+package types_misc is
 
-component srambytes_tech is
-generic (
-    memtech : integer := 0;
-    abits   : integer := 16;
+component ahb_sram32 is
+  generic (
+    memtech  : integer := 0;
+    haddr    : integer := 0;
+    hmask    : integer := 16#fffff#;
+    abits    : integer := 17;
     init_file : string := ""
-);
-port (
-    clk       : in std_logic;
-    raddr     : in std_logic_vector(abits-1 downto 0);
-    rdata     : out std_logic_vector(31 downto 0);
-    waddr     : in std_logic_vector(abits-1 downto 0);
-    we        : in std_logic;
-    wstrb     : in std_logic_vector(3 downto 0);
-    wdata     : in std_logic_vector(31 downto 0)
-);
+  );
+  port (
+    clk  : in std_logic;
+    nrst : in std_logic;
+    i    : in  ahb_slave_in_type;
+    o    : out ahb_slave_out_type
+  );
+end component;
+
+
+component apb_uart is
+  generic (
+    paddr   : integer := 0;
+    pmask   : integer := 16#fffff#;
+    pirq    : integer := 0;
+    fifosz  : integer := 16
+  );
+  port (
+    clk    : in  std_logic;
+    nrst   : in  std_logic;
+    i_rx : in std_logic;
+    o_tx : out std_logic;
+    i_apb  : in  apb_in_type;
+    o_apb  : out apb_out_type;
+    o_rxirq : out std_logic;
+    o_txirq : out std_logic
+  );
 end component;
 
 end;

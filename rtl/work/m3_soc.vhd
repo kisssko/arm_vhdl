@@ -22,12 +22,15 @@ use IEEE.STD_LOGIC_1164.ALL;
 library commonlib;
 use commonlib.types_common.all;
 library techmap;
+use techmap.gencomp.all;
 use techmap.types_pll.all;
 use techmap.types_buf.all;
 library ambalib;
 use ambalib.types_amba.all;
-library armlib;
-use armlib.types_armm3.all;
+library misclib;
+use misclib.types_misc.all;
+library work;
+use work.types_armm3.all;
 
  --! Top-level implementaion library
 library work;
@@ -39,9 +42,8 @@ use work.config_common.all;
 entity m3_soc is port 
 ( 
   --! Input reset. Active High. Usually assigned to button "Center".
-  i_rst     : in std_logic;
-  i_sclk_p  : in std_logic;
-  i_sclk_n  : in std_logic;
+  i_rstn    : in std_logic;
+  i_sclk    : in std_logic;
   --! GPIOs
   i_user     : in std_logic_vector(7 downto 0);
   o_user     : out std_logic_vector(7 downto 0);
@@ -62,11 +64,6 @@ end m3_soc;
 
 architecture arch_m3_soc of m3_soc is
 
-  signal w_ext_clk : std_logic;
-  signal w_pll_clk : std_logic;
-  signal w_pll_lock : std_logic;
-  signal w_rstn : std_logic;
-
   signal wb_ahbmo  : ahb_master_out_vector;
   signal wb_ahbmi  : ahb_master_in_vector;
   signal wb_ahbso  : ahb_slave_out_vector;
@@ -85,7 +82,6 @@ begin
   wb_ahbso(CFG_HSLV_RADIO) <= ahb_slave_out_none;
   wb_ahbso(CFG_HSLV_EXTERNAL) <= ahb_slave_out_none;
 
-  wb_apbo(0) <= apb_out_none;
   wb_apbo(1) <= apb_out_none;
   wb_apbo(2) <= apb_out_none;
   wb_apbo(3) <= apb_out_none;
@@ -102,28 +98,9 @@ begin
   wb_apbo(14) <= apb_out_none;
   wb_apbo(15) <= apb_out_none;
 
-  x1 : idsbuf_tech generic map (
-     generic_tech => CFG_PADTECH
-  ) port map (
-     clk_p    => i_sclk_p,
-     clk_n    => i_sclk_n,
-     o_clk    => w_ext_clk
-  );
-
-  pll0 : SysPLL_tech generic map (
-    tech => CFG_FABTECH
-  ) port map (
-    i_reset     => i_rst,
-    i_clk_tcxo	=> w_ext_clk,
-    o_clk_bus   => w_pll_clk,
-    o_locked    => w_pll_lock
-  );
-  w_rstn <= (not i_rst) and w_pll_lock;
-
-
   ctrl0 : interconnect port map (
-    i_rstn => w_rstn,
-    i_clk => w_pll_clk,
+    i_rstn => i_rstn,
+    i_clk => i_sclk,
     i_ahbmo => wb_ahbmo,
     o_ahbmi => wb_ahbmi,
     i_ahbso => wb_ahbso,
@@ -139,8 +116,8 @@ begin
   wb_jtagi.tdi <= i_jtag_tdi;
 
   cpu0 : cortexm3 port map (
-    i_rstn => w_rstn,
-    i_clk => w_pll_clk,
+    i_rstn => i_rstn,
+    i_clk => i_sclk,
     i_hicache => wb_ahbmi(CFG_HMST_ICACHE),
     o_hicache => wb_ahbmo(CFG_HMST_ICACHE),
     i_hdcache => wb_ahbmi(CFG_HMST_DCACHE),
@@ -156,50 +133,90 @@ begin
   o_jtag_tdo <= wb_jtago.tdo;
   o_jtag_vref <= '1';
 
+  -- 0x00000000 .. 0x20000000
   flash0 : hrom  generic map (
-    aw => 15
+    aw => 13,
+    init_file => CFG_SIM_BOOTROM_HEX
   ) port map (
-    i_rstn => w_rstn,
-    i_clk  => w_pll_clk,
+    i_rstn => i_rstn,
+    i_clk  => i_sclk,
     i_ahbsi => wb_ahbsi(CFG_HSLV_FLASH),
     o_ahbso => wb_ahbso(CFG_HSLV_FLASH)
   );
 
+--  flash1 : ahb_sram32 generic map (
+--    memtech  => inferred,
+--    haddr    => 0,           -- not used
+--    hmask    => 16#ffffe#,   -- not used
+--    abits    => 13,
+--    init_file => CFG_SIM_BOOTROM_HEX
+--  ) port map (
+--    clk  => i_sclk,
+--    nrst => i_rstn,
+--    i    => wb_ahbsi(CFG_HSLV_FLASH),
+--    o    => open--wb_ahbso(CFG_HSLV_FLASH)
+--  );
 
+
+  -- 0x20000000 .. 0x20007fff
   sram0 : hsram  generic map (
     aw => 15
   ) port map (
-    i_rstn => w_rstn,
-    i_clk  => w_pll_clk,
+    i_rstn => i_rstn,
+    i_clk  => i_sclk,
     i_ahbsi => wb_ahbsi(CFG_HSLV_SRAM0),
     o_ahbso => wb_ahbso(CFG_HSLV_SRAM0)
   );
 
+  -- 0x20008000 .. 0x2000ffff
   sram1 : hsram  generic map (
     aw => 15
   ) port map (
-    i_rstn => w_rstn,
-    i_clk  => w_pll_clk,
+    i_rstn => i_rstn,
+    i_clk  => i_sclk,
     i_ahbsi => wb_ahbsi(CFG_HSLV_SRAM1),
     o_ahbso => wb_ahbso(CFG_HSLV_SRAM1)
   );
 
+  -- 0x20010000 .. 0x20017fff
   sram2 : hsram  generic map (
     aw => 15
   ) port map (
-    i_rstn => w_rstn,
-    i_clk  => w_pll_clk,
+    i_rstn => i_rstn,
+    i_clk  => i_sclk,
     i_ahbsi => wb_ahbsi(CFG_HSLV_SRAM2),
     o_ahbso => wb_ahbso(CFG_HSLV_SRAM2)
   );
 
+  -- 0x20018000 .. 0x2001ffff
   sram3 : hsram  generic map (
     aw => 15
   ) port map (
-    i_rstn => w_rstn,
-    i_clk  => w_pll_clk,
+    i_rstn => i_rstn,
+    i_clk  => i_sclk,
     i_ahbsi => wb_ahbsi(CFG_HSLV_SRAM3),
     o_ahbso => wb_ahbso(CFG_HSLV_SRAM3)
   );
+
+
+  -- 0x40000000..0x40001000
+  uart0 : apb_uart generic map (
+    paddr   => 16#40000#,
+    pmask   => 16#fffff#,
+    pirq    => 0,
+    fifosz  => 16
+  ) port map (
+    clk => i_sclk,
+    nrst => i_rstn,
+    i_rx => i_uart1_rd,
+    o_tx => o_uart1_td,
+    i_apb  => wb_apbi(0),
+    o_apb  => wb_apbo(0),
+    o_rxirq => open,
+    o_txirq => open
+  );
+
+  o_user <= (others => '0');
+  o_user_dir <= X"0F";  -- [7:4] = LED output; [3:0] DIP input
 
 end arch_m3_soc;

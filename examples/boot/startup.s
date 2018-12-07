@@ -7,6 +7,7 @@
  
 /* Vector table definition */
  .section ".cs3.interrupt_vector"
+ISR_VECTORS:
  .long  __cs3_stack                 /* Top of Stack                 */
  .long  Reset_Handler               /* Reset Handler                */
  .long  NMI_Handler                 /* NMI Handler                  */

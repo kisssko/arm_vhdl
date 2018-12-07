@@ -24,7 +24,7 @@ use commonlib.types_common.all;
 --! AMBA system bus specific library.
 library ambalib;
 --! AXI4 configuration constants.
-use ambalib.types_amba4.all;
+use ambalib.types_amba.all;
 
 entity sram8_inferred_init is
   generic (
@@ -51,7 +51,7 @@ type ram_type is array (0 to SRAM_LENGTH-1) of std_logic_vector(7 downto 0);
 impure function init_ram(file_name : in string) return ram_type is
     file ram_file : text open read_mode is file_name;
     variable ram_line : line;
-    variable temp_bv : std_logic_vector(CFG_NASTI_DATA_BITS-1 downto 0);
+    variable temp_bv : std_logic_vector(31 downto 0);
     variable temp_mem : ram_type;
 begin
     for i in 0 to (FILE_IMAGE_LINES_TOTAL-1) loop

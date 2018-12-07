@@ -27,9 +27,7 @@ end m3_soc_tb;
 architecture behavior of m3_soc_tb is
 
      -- input/output signals:
-  signal i_rst : std_logic := '1';
-  signal i_sclk_p : std_logic;
-  signal i_sclk_n : std_logic;
+  signal i_rstn : std_logic := '0';
   signal io_gpio : std_logic_vector(7 downto 0);
   signal i_uart1_rd : std_logic := '1';
   signal o_uart1_td : std_logic;
@@ -63,9 +61,8 @@ architecture behavior of m3_soc_tb is
   
   component m3_soc is port 
   ( 
-    i_rst     : in std_logic;
-    i_sclk_p  : in std_logic;
-    i_sclk_n  : in std_logic;
+    i_rstn  : in std_logic;
+    i_sclk  : in std_logic;
     --! GPIOs
     i_user     : in std_logic_vector(7 downto 0);
     o_user     : out std_logic_vector(7 downto 0);
@@ -89,7 +86,7 @@ architecture behavior of m3_soc_tb is
     irlen : integer := 4
   ); 
   port (
-    rst : in std_logic;
+    rstn : in std_logic;
     clk : in std_logic;
     i_test_ena : in std_logic;
     i_test_burst : in std_logic_vector(7 downto 0);
@@ -129,8 +126,6 @@ architecture behavior of m3_soc_tb is
 begin
 
   clk_cur <= not clk_cur after 12.5 ns;
-  i_sclk_p <= clk_cur;
-  i_sclk_n <= not clk_cur;
 
 
   procSignal : process (clk_cur, iClkCnt)
@@ -142,7 +137,7 @@ begin
       --! @note to make sync. reset  of the logic that are clocked by
       --!       htif_clk which is clock/512 by default.
       if iClkCnt = 15 then
-        i_rst <= '0';
+        i_rstn <= '1';
       end if;
     end if;
   end process procSignal;
@@ -203,7 +198,7 @@ begin
     clock_rate => 4,
     irlen => 4
   ) port map (
-    rst => i_rst,
+    rstn => i_rstn,
     clk => clk_cur,
     i_test_ena => jtag_test_ena,
     i_test_burst => jtag_test_burst,
@@ -220,10 +215,8 @@ begin
   -- signal parsment and assignment
   tt : m3_soc port map
   (
-    i_rst => i_rst,
-    i_sclk_p  => i_sclk_p,
-    i_sclk_n  => i_sclk_n,
---    io_gpio     => io_gpio,
+    i_rstn => i_rstn,
+    i_sclk  => clk_cur,
     i_user     => X"01",
     o_user     => open,
     o_user_dir => open,

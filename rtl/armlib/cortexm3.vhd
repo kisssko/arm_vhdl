@@ -20,8 +20,8 @@ library commonlib;
 use commonlib.types_common.all;
 library ambalib;
 use ambalib.types_amba.all;
-library armlib;
-use armlib.types_armm3.all;
+library work;
+use work.types_armm3.all;
 
 entity cortexm3 is port (
     i_rstn    : in std_logic;

@@ -79,7 +79,8 @@ package types_armm3 is
   end component;
 
   component hrom is generic (
-    aw : integer := 16
+    aw : integer := 16;
+    init_file : string := ""
   );
   port (
     i_rstn    : in std_logic;

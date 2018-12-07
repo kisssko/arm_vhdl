@@ -20,8 +20,6 @@ library commonlib;
 use commonlib.types_common.all;
 library ambalib;
 use ambalib.types_amba.all;
-library armlib;
-use armlib.types_armm3.all;
 
 entity hsram is generic (
     aw : integer := 16

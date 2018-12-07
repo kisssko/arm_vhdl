@@ -28,7 +28,7 @@ entity jtag_sim is
     irlen : integer := 4
   ); 
   port (
-    rst : in std_logic;
+    rstn : in std_logic;
     clk : in std_logic;
     i_test_ena : in std_logic;
     i_test_burst : in std_logic_vector(7 downto 0);
@@ -77,7 +77,7 @@ architecture jtag_sim_rtl of jtag_sim is
   
 begin
 
-  comblogic : process(rst, r, i_tdi, i_test_ena, i_test_addr, i_test_we, i_test_wdata)
+  comblogic : process(rstn, r, i_tdi, i_test_ena, i_test_addr, i_test_we, i_test_wdata)
     variable v : registers;
     variable w_posedge : std_logic;
     variable w_negedge : std_logic;
@@ -211,7 +211,7 @@ begin
      end if;
 
      -- Reset
-     if rst = '1' then
+     if rstn = '0' then
         v.jtagstate := test_rst;
         v.jtagstatez := test_rst;
         v.clk_rate_cnt := 0;

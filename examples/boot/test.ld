@@ -8,7 +8,7 @@ OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
  
 /* Define the system entry point */
-ENTRY(Reset_Handler)
+ENTRY(ISR_VECTORS)
  
 /* Define the memory layout for the board */
 SECTIONS
@@ -44,5 +44,5 @@ SECTIONS
   /* End of uninitalized data segement */
   _end = .;
  
-  __cs3_stack = 0x10000000 + (32 * 1024);
+  __cs3_stack = 0x20008000;
 }

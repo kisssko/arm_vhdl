@@ -4,6 +4,9 @@ set TOP_DIR=../boot/
 set OBJ_DIR=%TOP_DIR%obj
 set ELF_DIR=%TOP_DIR%bin
 
+set PATH=%ARM_TOOLS%;%PATH%
+
+
 mkdir obj
 mkdir bin
 

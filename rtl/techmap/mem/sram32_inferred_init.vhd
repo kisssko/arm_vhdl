@@ -88,7 +88,7 @@ begin
 end function;
 
 --! @warning SIMULATION INITIALIZATION
-signal ram : ram_type := init_ram_bin(init_file);
+signal ram : ram_type := init_ram(init_file);
 signal adr : std_logic_vector(abits-1 downto 0);
 
 begin
